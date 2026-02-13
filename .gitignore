@@ -1,0 +1,62 @@
+# ----------------------
+# NODE / BACKEND
+# ----------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ----------------------
+# ENV FILES (SECRETS)
+# ----------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ----------------------
+# FRONTEND BUILD
+# ----------------------
+dist/
+build/
+.vite/
+.next/
+out/
+
+# ----------------------
+# DATABASE / LOCAL DATA
+# ----------------------
+*.sqlite
+*.db
+*.log
+
+# ----------------------
+# OS FILES
+# ----------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------
+# IDE / EDITOR
+# ----------------------
+.vscode/
+.idea/
+*.swp
+
+# ----------------------
+# CACHE
+# ----------------------
+.cache/
+.parcel-cache/
+
+# ----------------------
+# TEST COVERAGE
+# ----------------------
+coverage/
+
+# ----------------------
+# TEMP FILES
+# ----------------------
+tmp/
+temp/

@@ -2,6 +2,7 @@ import React from "react";
 import Home from "./pages/Home";
 import { Route, Routes } from "react-router-dom";
 import Auth from "./pages/Auth";
+export const serverUrl = "http://localhost:8000";
 
 const App = () => {
   return (

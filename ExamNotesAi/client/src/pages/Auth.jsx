@@ -5,10 +5,13 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/Firebase";
 import { serverUrl } from "../App";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
 
  // sirf syntax ke liye define kiya
 
 function Auth() {
+  const dispatch = useDispatch()
   const handleGoogelAuth = async () => {
     try {
       const response = await signInWithPopup(auth, provider);
@@ -22,9 +25,10 @@ function Auth() {
         {
           withCredentials: true, // spelling fix
         }
-      );
 
-      console.log(result.data);
+      );
+dispatch(setUserData(result.data))
+
     } catch (error) {
       console.log(error);
     }

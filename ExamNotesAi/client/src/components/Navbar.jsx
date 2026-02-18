@@ -1,14 +1,33 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
-import { useSelector } from "react-redux";
-import { useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { serverUrl } from "../App";
+import { setUserData } from "../redux/userSlice";
+
 function Navbar() {
   const { userData } = useSelector((state) => state.user);
-  const credits = userData.credits;
+  const credits = userData?.credits || 0;
+
   const [showCredit, setshowCredit] = useState(false);
   const [showProfile, setshowProfile] = useState(false);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleSignOut = async () => {
+    try {
+      await axios.get(serverUrl + "/api/auth/logout", {
+        withCredentials: true,
+      });
+      dispatch(setUserData(null));
+      navigate("/auth");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <motion.div
@@ -28,19 +47,23 @@ function Navbar() {
           ExamNotes <span className="text-gray-400">Ai</span>
         </span>
       </div>
+
       <div className="flex items-center gap-6 relative">
+        {/* Credits */}
         <div className="relative">
           <motion.div
             onClick={() => {
-              setshowCredit(!showCredit);setshowProfile(false)}}
+              setshowCredit(!showCredit);
+              setshowProfile(false);
+            }}
             whileHover={{ scale: 1.18 }}
             whileTap={{ scale: 1 }}
             className="flex items-center gap-2
-          px-3 py-1 rounded-full
-          bg-white/10
-          border border-white/20
-          text-white text-sm
-          cursor-pointer"
+              px-3 py-1 rounded-full
+              bg-white/10
+              border border-white/20
+              text-white text-sm
+              cursor-pointer"
           >
             <span className="text-xl mb-0.5">💎</span>
             <span>{credits}</span>
@@ -51,6 +74,7 @@ function Navbar() {
               ➕
             </motion.span>
           </motion.div>
+
           <AnimatePresence>
             {showCredit && (
               <motion.div
@@ -59,24 +83,22 @@ function Navbar() {
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ duration: 0.8 }}
                 className="absolute right-[-50px] mt-4 w-64
-             rounded-2xl bg-black/90 backdrop-blur-xl
-              border border-white/10
-              shadow-[0_25px_60px_rgba(0,0,0,0.7)] 
-              p-4 text-white"
+                  rounded-2xl bg-black/90 backdrop-blur-xl
+                  border border-white/10
+                  shadow-[0_25px_60px_rgba(0,0,0,0.7)] 
+                  p-4 text-white"
               >
-                <h4 className="font-semibold mb-2 ">Buy Credits</h4>
+                <h4 className="font-semibold mb-2">Buy Credits</h4>
                 <p className="text-sm text-gray-300 mb-4">
                   Use credits to generate Ai notes, diagrams & PDF's.
                 </p>
                 <button
-                  onClick={() => {
-                    setshowCredit(false);
-                  }}
+                  onClick={() => setshowCredit(false)}
                   className="w-full py-2 rounded-lg
-                   bg-gradient-to-br from-white
+                    bg-gradient-to-br from-white
                     to-gray-200
-                text-black font-semibold
-                hover:opacity-90 "
+                    text-black font-semibold
+                    hover:opacity-90"
                 >
                   Buy More Credits
                 </button>
@@ -84,24 +106,28 @@ function Navbar() {
             )}
           </AnimatePresence>
         </div>
+
+        {/* Profile */}
         <div className="relative">
           <motion.div
             onClick={() => {
               setshowProfile(!showProfile);
-              setshowCredit(false) }}
+              setshowCredit(false);
+            }}
             whileHover={{ scale: 1.07 }}
             whileTap={{ scale: 0.97 }}
             className="flex items-center gap-2
-          px-3 py-1 rounded-full
-          bg-white/10
-          border border-white/20
-          text-white text-sm
-          cursor-pointer"
+              px-3 py-1 rounded-full
+              bg-white/10
+              border border-white/20
+              text-white text-sm
+              cursor-pointer"
           >
             <span className="text-lg">
-              {userData?.name.slice(0, 1).toUpperCase()}
+              {userData?.name?.slice(0, 1).toUpperCase()}
             </span>
           </motion.div>
+
           <AnimatePresence>
             {showProfile && (
               <motion.div
@@ -110,20 +136,21 @@ function Navbar() {
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ duration: 0.8 }}
                 className="absolute right-0 mt-4 w-52
-             rounded-2xl bg-black/90 backdrop-blur-xl
-              border border-white/10
-              shadow-[0_25px_60px_rgba(0,0,0,0.7)] 
-              p-4 text-white"
+                  rounded-2xl bg-black/90 backdrop-blur-xl
+                  border border-white/10
+                  shadow-[0_25px_60px_rgba(0,0,0,0.7)] 
+                  p-4 text-white"
               >
-
-<MenuItem text='History'
-onClick={()=>{
-  setshowProfile(false)
-}}
-/>
-<div className="h-px bg-white/10 mx-3"></div>
-<MenuItem text='sign out' red />
-
+                <MenuItem
+                  text="History"
+                  onClick={() => setshowProfile(false)}
+                />
+                <div className="h-px bg-white/10 mx-3"></div>
+                <MenuItem
+                  text="Sign Out"
+                  red
+                  onClick={handleSignOut}
+                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -137,13 +164,12 @@ function MenuItem({ onClick, text, red }) {
   return (
     <div
       onClick={onClick}
-      className={`w-full text-left px-5 py-3 text-3 text-sm transition-colors rounded-lg
+      className={`w-full text-left px-5 py-3 text-sm transition-colors rounded-lg
         ${
           red
             ? "text-red-400 hover:bg-red-500/10"
             : "text-gray-200 hover:bg-white/10"
-        }
-      `}
+        }`}
     >
       {text}
     </div>
@@ -151,4 +177,3 @@ function MenuItem({ onClick, text, red }) {
 }
 
 export default Navbar;
-

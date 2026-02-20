@@ -2,10 +2,14 @@ import React from "react";
 import Navbar from "../components/Navbar";
 import { motion } from "motion/react";
 import img from "../assets/img1.png/";
+import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate()
   return (
     <div className=" min-h-screen overflow-hidden bg-white text-black">
+     
       <Navbar />
 
       {/* top */}
@@ -53,6 +57,9 @@ const Home = () => {
             </motion.p>
 
             <motion.button
+            onClick={()=>{
+              navigate('/notes')
+            }}
               whileHover={{ y: -10, rotateX: 8, rotateY: -8, scale: 1.07 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 200, damping: 18 }}
@@ -111,6 +118,7 @@ const Home = () => {
         instantly. "
         />
       </section>
+       <Footer />
     </div>
   );
 };

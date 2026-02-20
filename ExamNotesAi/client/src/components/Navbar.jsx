@@ -93,7 +93,10 @@ function Navbar() {
                   Use credits to generate Ai notes, diagrams & PDF's.
                 </p>
                 <button
-                  onClick={() => setshowCredit(false)}
+                  onClick={() => {
+                    setshowCredit(false);
+                    navigate("/pricing");
+                  }}
                   className="w-full py-2 rounded-lg
                     bg-gradient-to-br from-white
                     to-gray-200
@@ -143,14 +146,13 @@ function Navbar() {
               >
                 <MenuItem
                   text="History"
-                  onClick={() => setshowProfile(false)}
+                  onClick={() => {
+                    setshowProfile(false);
+                    navigate('/history');
+                  }}
                 />
                 <div className="h-px bg-white/10 mx-3"></div>
-                <MenuItem
-                  text="Sign Out"
-                  red
-                  onClick={handleSignOut}
-                />
+                <MenuItem text="Sign Out" red onClick={handleSignOut} />
               </motion.div>
             )}
           </AnimatePresence>

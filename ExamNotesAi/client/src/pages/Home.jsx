@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import img from "../assets/img1.png/";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
-
+ 
 const Home = () => {
   const navigate = useNavigate()
   return (

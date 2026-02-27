@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { generateNotes } from "../services/Api.js";
 
@@ -9,6 +9,8 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
   const [revisionMode, setRevisionMode] = useState(false);
   const [includeDiagram, setIncludeDiagram] = useState(false);
   const [includeChart, setIncludeChart] = useState(false);
+  const [progress, setprogress] = useState(9);
+  const [progressText, setprogressText] = useState("");
 
   const handleSubmit = async () => {
     if (!topic.trim()) {
@@ -43,6 +45,35 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!loading) {
+      setprogress(0);
+      setprogressText("");
+      return;
+    }
+    let value = 0;
+
+    const interval = setInterval(() => {
+      value += Math.random() * 8;
+
+      if (value >= 95) {
+        value = 95;
+        setprogressText("Almost Done...");
+        clearInterval(interval);
+      } else if (value > 70) {
+        setprogressText("Finalizing notes...");
+      } else if (value > 40) {
+        setprogressText("Processing content...");
+      } else {
+        setprogressText("Generating notes...");
+      }
+
+      setprogress(Math.floor(value));
+    }, 700);
+
+    return () => clearInterval(interval);
+  }, [loading]);
 
   return (
     <motion.div
@@ -111,6 +142,28 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
       >
         {loading ? "Generating Notes..." : "Generate Notes"}
       </motion.button>
+
+      {loading && (
+        <div className="mt-4 space-y-2">
+          <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ ease: "easeOut", duration: 0.6 }}
+              className="h-full bg-gradient-to-r from-green-400 via-emerald-400 to-green-500"
+            ></motion.div>
+          </div>
+
+<div className="flex justify-between text-xs text-gray-300">
+
+  <span>{progressText}</span>
+  <span>{progress}%</span>
+</div>
+<p className="text-xs text-gray-400 text-center">
+  This may make up to 2-5 minutes. Please don't close or refresh the page.
+</p>
+        </div>
+      )}
     </motion.div>
   );
 };
@@ -142,9 +195,7 @@ function Toggle({ label, checked, onChange }) {
       </motion.div>
 
       <span
-        className={`text-sm ${
-          checked ? "text-green-300" : "text-gray-300"
-        }`}
+        className={`text-sm ${checked ? "text-green-300" : "text-gray-300"}`}
       >
         {label}
       </span>

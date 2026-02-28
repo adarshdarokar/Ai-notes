@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { generateNotes } from "../services/Api.js";
+import { useDispatch } from "react-redux";
+import { updateCredits } from "../redux/userSlice.js";
 
 const TopicForm = ({ setResult, setLoading, loading, setError }) => {
   const [topic, setTopic] = useState("");
@@ -9,21 +11,17 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
   const [revisionMode, setRevisionMode] = useState(false);
   const [includeDiagram, setIncludeDiagram] = useState(false);
   const [includeChart, setIncludeChart] = useState(false);
-  const [progress, setprogress] = useState(9);
+  const [progress, setprogress] = useState(0);
   const [progressText, setprogressText] = useState("");
+  const dispatch = useDispatch();
 
   const handleSubmit = async () => {
-    if (!topic.trim()) {
-      setError("Please enter the topic");
-      return;
-    }
-
-    setError("");
-    setLoading(true);
-    setResult(null);
-
     try {
-      const data = await generateNotes({
+      setError("");
+      setLoading(true);
+      setResult(null);
+
+      const result = await generateNotes({
         topic,
         classLevel,
         examType,
@@ -32,16 +30,23 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
         includeChart,
       });
 
-      if (!data) {
-        setError("No response from server");
-        return;
+      setResult(result.data);
+
+      if (typeof result.creditsLeft === "number") {
+        dispatch(updateCredits(result.creditsLeft));
       }
 
-      setResult(data); // ✅ No .data here
+      setLoading(false);
+      setClassLevel("");
+      setTopic("");
+      setExamType("");
+      setIncludeChart(false);
+      setRevisionMode(false);
+      setIncludeDiagram(false);
+
     } catch (error) {
       console.log(error);
       setError("Failed to fetch notes from server");
-    } finally {
       setLoading(false);
     }
   };
@@ -52,6 +57,7 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
       setprogressText("");
       return;
     }
+
     let value = 0;
 
     const interval = setInterval(() => {
@@ -81,7 +87,6 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl bg-gradient-to-br from-black/90 via-black/80 to-black/90 backdrop-blur-2xl border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.75)] p-8 space-y-6 text-white"
     >
-      {/* Topic */}
       <input
         type="text"
         placeholder="Enter topic (e.g. Web Development)"
@@ -91,7 +96,6 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
         className="w-full p-3 rounded-xl bg-white/10 border border-white/20 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-white/30"
       />
 
-      {/* Class Level */}
       <input
         type="text"
         placeholder="Enter class level (e.g. Class 10th)"
@@ -100,7 +104,6 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
         className="w-full p-3 rounded-xl bg-white/10 border border-white/20 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-white/30"
       />
 
-      {/* Exam Type */}
       <input
         type="text"
         placeholder="Enter exam type (e.g. CBSE, JEE, NEET)"
@@ -109,7 +112,6 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
         className="w-full p-3 rounded-xl bg-white/10 border border-white/20 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-white/30"
       />
 
-      {/* Toggles */}
       <div className="flex flex-col md:flex-row gap-6">
         <Toggle
           label="Revision Mode"
@@ -128,7 +130,6 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
         />
       </div>
 
-      {/* Button */}
       <motion.button
         onClick={handleSubmit}
         whileHover={!loading ? { scale: 1.02 } : {}}
@@ -151,24 +152,22 @@ const TopicForm = ({ setResult, setLoading, loading, setError }) => {
               animate={{ width: `${progress}%` }}
               transition={{ ease: "easeOut", duration: 0.6 }}
               className="h-full bg-gradient-to-r from-green-400 via-emerald-400 to-green-500"
-            ></motion.div>
+            />
           </div>
 
-<div className="flex justify-between text-xs text-gray-300">
+          <div className="flex justify-between text-xs text-gray-300">
+            <span>{progressText}</span>
+            <span>{progress}%</span>
+          </div>
 
-  <span>{progressText}</span>
-  <span>{progress}%</span>
-</div>
-<p className="text-xs text-gray-400 text-center">
-  This may make up to 2-5 minutes. Please don't close or refresh the page.
-</p>
+          <p className="text-xs text-gray-400 text-center">
+            This may take up to 2-5 minutes. Please don't close or refresh the page.
+          </p>
         </div>
       )}
     </motion.div>
   );
 };
-
-/* ================= Toggle Component ================= */
 
 function Toggle({ label, checked, onChange }) {
   return (
@@ -194,9 +193,7 @@ function Toggle({ label, checked, onChange }) {
         />
       </motion.div>
 
-      <span
-        className={`text-sm ${checked ? "text-green-300" : "text-gray-300"}`}
-      >
+      <span className={`text-sm ${checked ? "text-green-300" : "text-gray-300"}`}>
         {label}
       </span>
     </div>
